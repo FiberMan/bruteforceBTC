@@ -1,7 +1,6 @@
 import datetime as dt
-import smtplib
 import os, multiprocessing
-import binascii, base58
+import base58
 from functions import * 
 
 threads=8
@@ -36,7 +35,7 @@ def yearsToFindAkey(threadSpeed, threads, searchListSize):
     return iterationsToSuccess / totalSpeed / 3600 / 24 / 365
 
 def seek(thread, hash160Set):
-    LOG_EVERY_N = 10000
+    LOG_EVERY_N = 100000
     start_time = dt.datetime.today().timestamp()
     i = 0
     print("Thread %s:  Searching Private Key.." % thread)
@@ -50,18 +49,18 @@ def seek(thread, hash160Set):
         # Address uncompressed:  18CJdksq7eVGnENaackZDpMb4rgbc9YR7y
         # Address compressed:    17JsmEygbbEUEpvt4PFtYaTeSqfb9ki1F1
         # and uncomment following lines specifying appropriate private key:
-        # if i == 21000:
-        #     priv_key = binascii.unhexlify('60cf347dbc59d31c1358c8e5cf5e45b822ab85b79cb32a9f3d98184779a9efc2')
+        # if i == 110000:
+        #     priv_key = bytes.fromhex('60cf347dbc59d31c1358c8e5cf5e45b822ab85b79cb32a9f3d98184779a9efc2')
 
-        publ_key = getPubKey(priv_key)
+        publ_key = getPubKeyFaster(priv_key)
 
         # search public key uncompressed
-        publ_key_uncompressed = getPubKeyFullUncompressed(publ_key)
+        publ_key_uncompressed = getPubKeyFullUncompressedFaster(publ_key)
         hash160 = getPubKeyHashed(publ_key_uncompressed)
         searchInList(priv_key, hash160, hash160Set, 'uncompressed', foundFile)
 
         # search public key compressed
-        publ_key_compressed = getPubKeyFullCompressed(publ_key)
+        publ_key_compressed = getPubKeyFullCompressedFaster(publ_key)
         hash160 = getPubKeyHashed(publ_key_compressed)
         searchInList(priv_key, hash160, hash160Set, 'compressed', foundFile)
 
@@ -70,12 +69,13 @@ def seek(thread, hash160Set):
             threadSpeed = i / time_diff
             setSize = len(hash160Set)
             yearsLeft = yearsToFindAkey(threadSpeed, threads, setSize)
-            print("Thread: %s | priv keys/s = %s | matches M/s: %s | priv keys processed: %s | elapsed s %s | years to find a key %s" % (thread, format(i / time_diff, '.2f'), format(i * setSize * 2 / 1000000 / time_diff, '.2f'), i, format(time_diff, '.1f'), yearsLeft))
-					
+            print("Thread: %s | priv keys/s = %s | matches G/s: %s | priv keys processed: %s | elapsed s %s | years to find a key %s" % (thread, format(i / time_diff, '.2f'), format(i * setSize * 2 / 1000000000 / time_diff, '.2f'), i, format(time_diff, '.1f'), yearsLeft))
+
 
 if __name__ == '__main__':
     jobs = []
     hash160Set = createHashedPubKeySetFromAddressList(addressFile)
+    print('File %s loaded, number of unique addresses: %s' % (addressFile, len(hash160Set)))
     for thread in range(threads):
         p = multiprocessing.Process(target=seek, args=(thread,hash160Set))
         jobs.append(p)

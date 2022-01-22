@@ -1,4 +1,5 @@
-import binascii, hashlib, base58, ecdsa
+import hashlib, base58, ecdsa
+from coincurve.keys import PublicKey
 
 # Creates a bitcoin address from hashed public key
 def getAddress(pub_key_hashed_bytes):
@@ -26,10 +27,16 @@ def getPubKey(priv_key_bytes):
     vk = sk.get_verifying_key()
     return vk.to_string()
 
+def getPubKeyFaster(priv_key_bytes):
+    return PublicKey.from_valid_secret(priv_key_bytes)
+
 # Creates full uncompressed public key
 def getPubKeyFullUncompressed(pub_key_bytes):
     # Prefix 0x04 indicates that public key is uncompressed
     return b"\x04" + pub_key_bytes
+
+def getPubKeyFullUncompressedFaster(pub_key_bytes):
+    return pub_key_bytes.format(compressed=False)
 
 # Creates full compressed public key
 def getPubKeyFullCompressed(pub_key_bytes):
@@ -39,6 +46,9 @@ def getPubKeyFullCompressed(pub_key_bytes):
     last_byte = pub_key_bytes[-1]
     bitcoin_byte = b"\x02" if last_byte % 2 == 0 else b"\x03"
     return bitcoin_byte + key_half
+
+def getPubKeyFullCompressedFaster(pub_key_bytes):
+    return pub_key_bytes.format(compressed=True)
 
 # Perform SHA-256 and RipeMD160 hash functions
 def getPubKeyHashed(pub_key_full_bytes):
@@ -62,11 +72,11 @@ def validateAddress(bitcoinAddress):
     print("\tChecksum: ", checksum)
     print("--------------------------------------")
     # to handle true result, we should pass our input to hashlib.sha256() method() as Byte format
-    # so we use binascii.unhexlify() method to convert our input from Hex to Byte
+    # so we use bytes.fromhex() method to convert our input from Hex to Byte
     # finally, hexdigest() method convert value to human-readable
     hash = prefix + hash
     for x in range(1,3):
-        hash = hashlib.sha256(binascii.unhexlify(hash)).hexdigest()
+        hash = hashlib.sha256(bytes.fromhex(hash)).hexdigest()
         print("Hash#", x, " : ", hash)
     print("--------------------------------------")
     if(checksum == hash[:8]):
