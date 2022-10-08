@@ -3,7 +3,7 @@ import os, multiprocessing
 import base58
 from functions import * 
 
-threads=8
+threads = multiprocessing.cpu_count()
 addressFile = 'addresses.txt'
 foundFile = 'found.txt'
 
@@ -29,10 +29,9 @@ def searchInList(priv_key, hash160, rawAddressSet, compression, outputFile):
             f.write(message + '\n')
 
 def yearsToFindAkey(threadSpeed, threads, searchListSize):
-    totalSpeed = threadSpeed * threads
+    totalSpeed = threadSpeed * threads * searchListSize
     combinations = 2**160
-    iterationsToSuccess = combinations / searchListSize
-    return iterationsToSuccess / totalSpeed / 3600 / 24 / 365
+    return combinations / totalSpeed / 3600 / 24 / 365
 
 def seek(thread, hash160Set):
     LOG_EVERY_N = 100000
@@ -69,13 +68,14 @@ def seek(thread, hash160Set):
             threadSpeed = i / time_diff
             setSize = len(hash160Set)
             yearsLeft = yearsToFindAkey(threadSpeed, threads, setSize)
-            print("Thread: %s | priv keys/s = %s | matches G/s: %s | priv keys processed: %s | elapsed s %s | years to find a key %s" % (thread, format(i / time_diff, '.2f'), format(i * setSize * 2 / 1000000000 / time_diff, '.2f'), i, format(time_diff, '.1f'), yearsLeft))
+            print("Thread: %s | priv keys/s = %s | matches G/s: %s | priv keys processed: %s | elapsed s %s | years to find a key (using all cores) %s" % (thread, format(i / time_diff, '.2f'), format(i * setSize * 2 / 1000000000 / time_diff, '.2f'), i, format(time_diff, '.1f'), format(yearsLeft, '.2e')))
 
 
 if __name__ == '__main__':
     jobs = []
     hash160Set = createHashedPubKeySetFromAddressList(addressFile)
     print('File %s loaded, number of unique addresses: %s' % (addressFile, len(hash160Set)))
+    print('Number of CPU cores to be utilized: %s' % threads)
     for thread in range(threads):
         p = multiprocessing.Process(target=seek, args=(thread,hash160Set))
         jobs.append(p)

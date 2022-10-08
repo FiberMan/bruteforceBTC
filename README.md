@@ -9,7 +9,10 @@ This Script creates randomly private and public addresses without checking the b
 The script generates **compressed** and **uncompressed** public keys out of private key and then compares both against the list. Thus, doubles the chances of success.
 
 The script avoids extra calculations which makes it extremely fast.  
-On **i7-10750H** CPU it checks over **136000 keys per second**. Multiplying it by the number of provided addresses, I've got the speed around **34 billion checks per second**.
+
+## Speed tests
+On **i7-10750H** CPU (12 cores) it checks over **136 000 keys per second**. Multiplying it by the number of provided addresses, I've got the speed around **34 billion checks per second**.  
+On **M1** CPU (10 cores) - **310 000 keys/sec** (**76 Gchecks/sec**).
 
 ## How to run it
 
@@ -23,7 +26,7 @@ execute `run.bat`
 - pip install ecdsa
 - pip install coincurve
 - pip install base58
-- 2,700,000,000,000,000,000,000,000,000,000 Years
+- 1,200,000,000,000,000,000,000,000,000,000 Years
 
 If you like it or you are so lucky to brute force some bitcoins, let me know by sending some BTC to **1K52E2fgg6sqJHiAk1WDySRpDE5UPVko2K**
 
