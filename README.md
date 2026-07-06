@@ -11,18 +11,21 @@ The script generates **compressed** and **uncompressed** public keys out of priv
 The script avoids extra calculations which makes it extremely fast.  
 
 ## Speed tests
-On **i7-10750H** CPU (12 cores) it checks over **136 000 keys per second**. Multiplying it by the number of provided addresses, I've got the speed around **34 billion checks per second**.  
-On **M1** CPU (10 cores) - **310 000 keys/sec** (**76 Gchecks/sec**).
+On **Intel Core i7-10750H** CPU (12 cores) it checks over **136 000 keys per second**. Multiplying it by the number of provided addresses, I've got the speed around **34 billion checks per second**.  
+On **Intel Core Ultra 9 285H** CPU (16 cores) it checks over **416 000 keys/sec** (**102 Gchecks/sec**).
+On **Apple M1** CPU (10 cores) - **310 000 keys/sec** (**76 Gchecks/sec**).
 
 ## How to run it
-
-`python brute.py`  
+```
+pip install -r requirements.txt
+python brute.py
+```
 or
-execute `run.bat`
+execute `run.bat` (Windows) or `run.sh` (Linux, MacOS) file.
 
 ## Requirements
 
-- Python 3.x
+- Python 3.13
 - pip install ecdsa
 - pip install coincurve
 - pip install base58
